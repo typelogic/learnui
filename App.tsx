@@ -55,6 +55,32 @@ const Section: React.FC<{
 
 class App extends React.Component {
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      flag: false
+    }
+  }
+
+  componentDidMount() {
+    this.timerID = setInterval(
+      () => this.tick(),
+      9000
+    );
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timerID);
+  }
+
+  tick() {
+    console.log('tick')
+    this.setState({
+      flag: true
+    });
+  }
+
   render() {
     return (
       <SafeAreaView>
@@ -63,7 +89,9 @@ class App extends React.Component {
             <Section title="API">
               <Button title="Connect" onPress={this.connect} />
               <View style={styles.space} />
-              <Button title="Transmit" disabled={!this.isConnected} onPress={this.transmit} />
+              <Button title="Dummy" onPress={this.dummy} />
+              <View style={styles.space} />
+              <Button title="Transmit" disabled={!this.state.flag} onPress={this.transmit} />
             </Section>
           </View>
         </ScrollView>
@@ -73,7 +101,11 @@ class App extends React.Component {
 
   connect() {
     console.log("+connect")
-    // this.isConnected = true;
+
+    /*this.setState({
+      flag: true
+    });*/
+
     console.log("-connect")
   }
 
@@ -81,6 +113,11 @@ class App extends React.Component {
     console.log("+transmit")
     console.log("-transmit")
   }
+
+  dummy() {
+    console.log("dummy")      
+  }
+
 };
 
 const styles = StyleSheet.create({
