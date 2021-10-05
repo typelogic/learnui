@@ -25,6 +25,8 @@ import {
   Colors,
 } from 'react-native/Libraries/NewAppScreen';
 
+import LearnUI from './LearnUI';
+
 const Section: React.FC<{
   title: string;
 }> = ({children, title}) => {
@@ -64,10 +66,22 @@ class App extends React.Component {
   }
 
   componentDidMount() {
+    /*
     this.timerID = setInterval(
       () => this.tick(),
       9000
     );
+    */
+
+    const eventEmitter = new NativeEventEmitter();
+    this.eventListener = eventEmitter.addListener('MY_EVENT', (event) => {
+      console.log(`my event: ${event.what}`);
+
+      this.setState({
+        flag: true
+      });
+
+    });
   }
 
   componentWillUnmount() {
@@ -101,6 +115,8 @@ class App extends React.Component {
 
   connect() {
     console.log("+connect")
+
+    LearnUI.connect("somerandomstring")
 
     /*this.setState({
       flag: true
