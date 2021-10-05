@@ -8,7 +8,7 @@
  * @format
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -55,7 +55,115 @@ const Section: React.FC<{
   );
 };
 
-class App extends React.Component {
+// Enables the button either after 60 seconds using a timer
+// or by clicking connect button 
+class App1 extends React.Component {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      flag: false
+    }
+
+    // This also enables the transmit button 
+    // after 60 seconds
+    this.timerID = setInterval(
+      () => this.tick(),
+      60000
+    );
+  }
+
+  tick() {
+    console.log('tick')
+    this.setState({
+      flag: true
+    });
+
+    clearInterval(this.timerID);
+  }
+
+  render() {
+    return (
+      <SafeAreaView>
+        <ScrollView>
+          <View>
+            <Section title="API">
+              <Button title="Connect" onPress={() => {
+                console.log("*** connect must be here  ***")
+                this.setState({
+                  flag: true
+                })
+              }} />
+              <View style={styles.space} />
+              <Button title="Dummy" onPress={this.dummy} />
+              <View style={styles.space} />
+              <Button title="Transmit" disabled={!this.state.flag} onPress={this.transmit} />
+            </Section>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  transmit() {
+    console.log("+transmit")
+    console.log("-transmit")
+  }
+
+  dummy() {
+    console.log("dummy")      
+  }
+
+};
+
+// Enables the transmit button by clicking the connect button 
+// which uses useState mechanism
+const App2 = () => {
+
+  const [flag, enableFlag] = useState(true);
+
+  const connect = () => {
+    console.log("+connect")
+    enableFlag(false);
+    console.log("-connect")
+  }
+
+  const transmit = () => {
+    console.log("+transmit")
+    console.log("-transmit")
+  }
+
+  const dummy = () => {
+    console.log("dummy")      
+  }
+
+  // For a functional component, this return MUST 
+  // be at the end here in order for closure to be 
+  // captured
+  return (
+      <SafeAreaView>
+        <ScrollView>
+          <View>
+            <Section title="API">
+              <Button title="Connect" onPress={connect} />
+              <View style={styles.space} />
+              <Button title="Dummy" onPress={dummy} />
+              <View style={styles.space} />
+              <Button title="Transmit" disabled={flag} onPress={transmit} />
+            </Section>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+  );
+};
+
+// Enables the transmit button by clicking the connect button
+// which schedules a thread at the native Java side and then
+// sends an event using NativeEventEmitter. The event handler
+// then sets the state flag to true. This is similar flow via
+// using timer.
+class App3 extends React.Component {
 
   constructor(props) {
     super(props);
@@ -66,33 +174,34 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    /*
-    this.timerID = setInterval(
-      () => this.tick(),
-      9000
-    );
-    */
-
     const eventEmitter = new NativeEventEmitter();
     this.eventListener = eventEmitter.addListener('MY_EVENT', (event) => {
       console.log(`my event: ${event.what}`);
-
       this.setState({
         flag: true
       });
-
     });
   }
 
   componentWillUnmount() {
-    clearInterval(this.timerID);
+    if (this.eventListener) {
+      this.eventListener.remove();
+    }
   }
 
-  tick() {
-    console.log('tick')
-    this.setState({
-      flag: true
-    });
+  connect() {
+    console.log("+connect: Please wait for event to be received.")
+    LearnUI.connect("somerandomstring")
+    console.log("-connect")
+  }
+
+  transmit() {
+    console.log("+transmit")
+    console.log("-transmit")
+  }
+
+  dummy() {
+    console.log("dummy")      
   }
 
   render() {
@@ -112,28 +221,6 @@ class App extends React.Component {
       </SafeAreaView>
     );
   }
-
-  connect() {
-    console.log("+connect")
-
-    LearnUI.connect("somerandomstring")
-
-    /*this.setState({
-      flag: true
-    });*/
-
-    console.log("-connect")
-  }
-
-  transmit() {
-    console.log("+transmit")
-    console.log("-transmit")
-  }
-
-  dummy() {
-    console.log("dummy")      
-  }
-
 };
 
 const styles = StyleSheet.create({
@@ -159,4 +246,6 @@ const styles = StyleSheet.create({
   }
 });
 
-export default App;
+export default App1; 
+//export default App2; 
+//export default App3; 
